@@ -352,12 +352,12 @@ ppHighLevelDecl nx (EnumSimpleType t is comm) =
                         <+> ppvList "" "`onFail`" "" parseItem is
                    $$ vcat (map enumText is))
   where
-    item (i,c) = (ppUnqConId nx t <> text "_" <> ppConId nx i)
+    item (i,c) = (ppUnqConId nx t <> text "_" <> ppXName i)
                  $$ ppComment After c
     parseItem (i,_) = text "do literal \"" <> ppXName i <> text "\"; return"
-                           <+> (ppUnqConId nx t <> text "_" <> ppConId nx i)
+                           <+> (ppUnqConId nx t <> text "_" <> ppXName i)
     enumText  (i,_) = text "simpleTypeText"
-                           <+> (ppUnqConId nx t <> text "_" <> ppConId nx i)
+                           <+> (ppUnqConId nx t <> text "_" <> ppXName i)
                            <+> text "= \"" <> ppXName i <> text "\""
 
 ppHighLevelDecl nx (ElementsAttrs t es as comm) =
