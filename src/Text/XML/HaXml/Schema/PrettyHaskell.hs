@@ -110,12 +110,19 @@ ppModule nx m =
                            (module_re_exports m))
               $$ text ") where")
     $$ text " "
-    $$ text "import Text.XML.HaXml.Schema.Schema (SchemaType(..),SimpleType(..),Extension(..),Restricts(..))"
-    $$ text "import Text.XML.HaXml.Schema.Schema as Schema"
+    $$ text "import Text.XML.HaXml.Schema.Schema (SchemaType(..),SimpleType(..),Restricts(..))"
+    $$ text "import Text.XML.HaXml.Schema.Schema as Schema hiding (Extension)"
     $$ text "import Text.XML.HaXml.OneOfN"
     $$ (case module_xsd_ns m of
-         Nothing -> text "import Text.XML.HaXml.Schema.PrimitiveTypes as Xsd"
-         Just ns -> text "import qualified Text.XML.HaXml.Schema.PrimitiveTypes as"<+>ppConId nx ns)
+         Nothing ->
+           text "import Text.XML.HaXml.Schema.PrimitiveTypes as Xsd"
+           -- this is for the AnyType. Probably is a better way of
+           -- doing this.
+           $$ text "import Text.XML.HaXml.Schema.Schema as Xsd"
+         Just ns ->
+           text "import qualified Text.XML.HaXml.Schema.PrimitiveTypes as"<+>ppConId nx ns
+           $$ text "import qualified Text.XML.HaXml.Schema.Schema as"<+>ppConId nx ns)
+
     $$ vcat (map (ppHighLevelDecl nx)
                  (module_re_exports m ++ module_import_only m))
     $$ text " "
