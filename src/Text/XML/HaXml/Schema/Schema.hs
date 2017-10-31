@@ -12,6 +12,7 @@ module Text.XML.HaXml.Schema.Schema
   , parseSimpleType
   , parseText
   , AnyElement(..)
+  , AnyType
   , parseAnyElement
 --  , module Text.XML.HaXml.XmlContent.Parser -- no, just the things below
   , Content(..)
@@ -118,6 +119,11 @@ getAttribute aname (Elem t as _) pos =
 -- | The <xsd:any> type.  Parsing will always produce an "UnconvertedANY".
 data AnyElement = forall a . (SchemaType a, Show a) => ANYSchemaType a
                 | UnconvertedANY (Content Posn)
+
+-- added by mwotton, Xsd.AnyType is a valid part of the schema and
+-- it's unclear why it isn't present
+type AnyType = AnyElement
+
 
 instance Show AnyElement where
     show (UnconvertedANY c) = "Unconverted "++ show (verbatim c)
