@@ -111,6 +111,7 @@ ppModule nx m =
               $$ text ") where")
     $$ text " "
     $$ text "import Text.XML.HaXml.Schema.Schema (SchemaType(..),SimpleType(..),Restricts(..))"
+    $$ text "import qualified Text.XML.HaXml.Schema.Schema as Xsd"
     $$ text "import Text.XML.HaXml.Schema.Schema as Schema hiding (Extension)"
     $$ text "import Text.XML.HaXml.OneOfN"
     $$ (case module_xsd_ns m of
@@ -311,7 +312,7 @@ ppHighLevelDecl nx (ExtendSimpleType t s as comm) =
                                      as
                              $$ nest 4 (text "$ schemaTypeToXML s bt"))
                   )
-    $$ text "instance Extension" <+> ppUnqConId nx t <+> ppConId nx s
+    $$ text "instance Xsd.Extension" <+> ppUnqConId nx t <+> ppConId nx s
                                  <+> text "where"
         $$ nest 4 (text "supertype (" <> ppUnqConId nx t <> text " s _) = s")
   where
@@ -679,7 +680,7 @@ ppElementAbstractOfType nx (ElementAbstractOfType n t substgrp comm) =
 ppExtension :: NameConverter -> XName -> XName -> Maybe XName -> Bool ->
                [Element] -> [Attribute] -> [Element] -> [Attribute] -> Doc
 ppExtension nx t s fwdReqd abstractSuper oes oas es as =
-    text "instance Extension" <+> ppUnqConId nx t <+> ppConId nx s
+    text "instance Xsd.Extension" <+> ppUnqConId nx t <+> ppConId nx s
                               <+> text "where"
        $$ (if abstractSuper then
            nest 4 (text "supertype v" <+> text "="
@@ -691,6 +692,11 @@ ppExtension nx t s fwdReqd abstractSuper oes oas es as =
            else
            nest 4 (text "supertype (" <> ppType t (oes++es) (oas++as)
                                       <> text ") ="
+--                                        $$ nest 11 (text "def") ))
+                  -- so this is pretty problematic - this will _ONLY_
+                  -- work if the constructor is nullary and the same
+                  -- as the datatype name.
+
                                       $$ nest 11 (ppType s oes oas) ))
 --  $$ (if isJust fwdReqd then
 --     -- text "data" <+> fwd t <+> text "=" <+> fwd t $$  -- already defined
@@ -722,7 +728,7 @@ ppSuperExtension nx super (grandSuper:_) (t,Nothing) =
                                            <+> text "->"
                                            <+> ppConId nx super <> text ")"))
 -}
-ppSuperExtension nx super grandSupers (t,Just mod) =  -- fwddecl
+ppSuperExtension nx super grandSupers (t,Just mod) = -- fwddecl
     text "-- Note that" <+> ppUnqConId nx t
     <+> text "will be declared later in module" <+> ppModId nx mod
     $$ ppSuperExtension nx super grandSupers (t,Nothing)
@@ -731,7 +737,7 @@ ppSuperExtension nx super grandSupers (t,Nothing) =
   where
     ppSuper :: XName -> [XName] -> Doc
     ppSuper t gss@(gs:_) =
-        text "instance Extension" <+> ppUnqConId nx t <+> ppConId nx gs
+        text "instance Xsd.Extension" <+> ppUnqConId nx t <+> ppConId nx gs
                                   <+> text "where"
         $$ nest 4 (text "supertype" <+>
                       ppvList "=" "." "" coerce (zip (tail gss++[t]) gss))
