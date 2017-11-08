@@ -23,7 +23,7 @@ import Text.PrettyPrint.HughesPJ as PP
 
 import Data.List (intersperse,notElem,inits)
 import Data.Maybe (isJust,fromJust,fromMaybe,catMaybes)
-import Data.Char (toLower)
+import Data.Char (toLower, toUpper)
 
 -- | Vertically pretty-print a list of things, with open and close brackets,
 --   and separators.
@@ -112,6 +112,7 @@ ppModule nx m =
     $$ text " "
     $$ text "import Text.XML.HaXml.Schema.Schema (SchemaType(..),SimpleType(..),Restricts(..))"
     $$ text "import qualified Text.XML.HaXml.Schema.Schema as Xsd"
+    $$ text "import GHC.Generics"
     $$ text "import Text.XML.HaXml.Schema.Schema as Schema hiding (Extension)"
     $$ text "import Text.XML.HaXml.OneOfN"
     $$ (case module_xsd_ns m of
@@ -353,13 +354,15 @@ ppHighLevelDecl nx (EnumSimpleType t is comm) =
                         <+> ppvList "" "`onFail`" "" parseItem is
                    $$ vcat (map enumText is))
   where
-    item (i,c) = (ppUnqConId nx t <> text "_" <> ppXName i)
+    item (i,c) = (ppUnqConId nx t <> text "_" <> ppXNameCap i)
                  $$ ppComment After c
     parseItem (i,_) = text "do literal \"" <> ppXName i <> text "\"; return"
-                           <+> (ppUnqConId nx t <> text "_" <> ppXName i)
+                           <+> (ppUnqConId nx t <> text "_" <> ppXNameCap i)
     enumText  (i,_) = text "simpleTypeText"
-                           <+> (ppUnqConId nx t <> text "_" <> ppXName i)
-                           <+> text "= \"" <> ppXName i <> text "\""
+                           <+> (ppUnqConId nx t <> text "_" <> ppXNameCap i)
+                           <+> text "= \"" <> ppXNameCap i <> text "\""
+    ppXNameCap (XName (N (x:xs))) = text (toUpper x:xs)
+    ppXNameCap (XName x)          = error ("should never hit this " ++ show x)
 
 ppHighLevelDecl nx (ElementsAttrs t es as comm) =
     ppComment Before comm
@@ -576,11 +579,14 @@ ppHighLevelDecl nx (ExtendComplexType t s es as _ comm)
 
 ppHighLevelDecl nx (ExtendComplexType t s oes oas es as
                                       fwdReqd absSup grandsuper comm) =
-    ppHighLevelDecl nx (ElementsAttrs t (oes++es) (oas++as) comm)
+       text ("-- ExtendComplexType " ++ extractXName t ++ " " ++ extractXName s)
+    $$ ppHighLevelDecl nx (ElementsAttrs t (oes++es) (oas++as) comm)
     $$ ppExtension nx t s fwdReqd absSup oes oas es as
     $$ (if not (null grandsuper) -- && not (isJust fwdReqd) -- && isJust fwdReqd
         then ppSuperExtension nx s grandsuper (t,Nothing)
         else empty)
+   where extractXName (XName (N n)) = n
+         extractXName x             = error (show x)
 
 ppHighLevelDecl nx (ExtendComplexTypeAbstract t s insts
                                               fwdReqd grandsuper comm) =
