@@ -316,6 +316,7 @@ ppHighLevelDecl nx (ExtendSimpleType t s as comm) =
     $$ text "instance Xsd.Extension" <+> ppUnqConId nx t <+> ppConId nx s
                                  <+> text "where"
         $$ nest 4 (text "supertype (" <> ppUnqConId nx t <> text " s _) = s")
+        $$ text ""
   where
     t_attrs = let (XName (N t_base)) = t in XName (N (t_base++"Attributes"))
 
