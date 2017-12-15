@@ -115,6 +115,8 @@ ppModule nx m =
     $$ text "import GHC.Generics"
     $$ text "import Text.XML.HaXml.Schema.Schema as Schema hiding (Extension)"
     $$ text "import Text.XML.HaXml.OneOfN"
+    $$ text "import Text.XML.HaXml.Posn(Posn)"
+    $$ text "import qualified Text.XML.HaXml.Types as HX"
     $$ (case module_xsd_ns m of
          Nothing ->
            text "import Text.XML.HaXml.Schema.PrimitiveTypes as Xsd"
