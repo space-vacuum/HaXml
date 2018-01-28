@@ -363,7 +363,7 @@ ppHighLevelDecl nx (EnumSimpleType t is comm) =
                            <+> (ppUnqConId nx t <> text "_" <> ppXNameCap i)
     enumText  (i,_) = text "simpleTypeText"
                            <+> (ppUnqConId nx t <> text "_" <> ppXNameCap i)
-                           <+> text "= \"" <> ppXNameCap i <> text "\""
+                           <+> text "= \"" <> ppXName i <> text "\""
     ppXNameCap (XName (N (x:xs))) = text (toUpper x:xs)
     ppXNameCap (XName x)          = error ("should never hit this " ++ show x)
 
