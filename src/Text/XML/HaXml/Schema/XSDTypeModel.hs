@@ -306,8 +306,17 @@ instance Semigroup Annotation where
 -- method is left-biased, and the /mempty/ value contains lots of
 -- undefined values.
 instance Monoid Schema where
-  mempty        = Schema{ schema_items=[] }
-  mappend       = (<>)
+  mempty = Schema
+    { schema_elementFormDefault = Unqualified
+    , schema_attributeFormDefault = Unqualified
+    , schema_finalDefault = Nothing
+    , schema_blockDefault = Nothing
+    , schema_targetNamespace = mempty
+    , schema_version = mempty
+    , schema_namespaces = mempty
+    , schema_items = mempty
+    }
+  mappend = (<>)
 
 instance Semigroup Schema where
   s <> t = s{ schema_items = schema_items s ++ schema_items t }
